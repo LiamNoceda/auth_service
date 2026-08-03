@@ -6,18 +6,21 @@ use axum::{
 use sqlx::PgPool;
 use serde::{Deserialize, Serialize,};
 
+// Structs for register request
 #[derive(Deserialize)]
 struct RegisterRequest {
     username: String,
     password: String,
 }
 
+// Structs for register response
 #[derive(Serialize)]
 struct RegisterResponse {
     message: String,
     username: String,
 }
 
+// Handler for users registration
 pub async fn register_handler(State(pool): State<PgPool>, Json(payload): Json<RegisterRequest>,) -> Result<(StatusCode, Json<RegisterResponse>), StatusCode> {
     let result = sqlx::query!(
         "INSERT INTO users (username, password) VALUES ($1, $2)", 
