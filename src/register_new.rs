@@ -1,0 +1,42 @@
+use axum::{
+    extract::State,
+    http::StatusCode,
+    Json,
+};
+use sqlx::PgPool;
+use serde::{Deserialize, Serialize,};
+
+#[derive(Deserialize)]
+struct RegisterRequest {
+    username: String,
+    password: String,
+}
+
+#[derive(Serialize)]
+struct RegisterResponse {
+    message: String,
+    username: String,
+}
+
+pub async fn register_handler(State(pool): State<PgPool>, Json(payload): Json<RegisterRequest>,) -> Result<(StatusCode, Json<RegisterResponse>), StatusCode> {
+    let result = sqlx::query!(
+        "INSERT INTO users (username, password) VALUES ($1, $2)", 
+        &payload.username, 
+        &payload.password
+        )
+        .execute(&pool)
+        .await;
+
+    match result {
+        Ok(_) => {
+            let response = RegisterResponse {
+                message: "User registered in Spatiol".to_string(),
+                username: payload.username,
+            };
+            Ok((StatusCode::CREATED, Json(response)))
+        }
+        Err(_) => {
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
