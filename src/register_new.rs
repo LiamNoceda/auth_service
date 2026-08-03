@@ -39,7 +39,7 @@ pub async fn register_handler(State(pool): State<PgPool>, Json(payload): Json<Re
             Ok((StatusCode::CREATED, Json(response)))
         }
         Err(_) => {
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
+            Err(StatusCode::CONFLICT)
         }
     }
 }
