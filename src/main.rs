@@ -9,18 +9,23 @@ mod register_new;
 
 #[tokio::main]
 async fn main() {
-    let DATABASE_URL = "YOUR_URL_DATABASE";
+    let database_url = "YOUR_URL_DATABASE";
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(DATABASE_URL)
+        .connect(database_url)
         .await
         .expect("Failed connect in Data Base");
+
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed run migrations");
 
     let app = Router::new()
         .route("/auth/register", post(register_new::register_handler))
         .with_state(pool);
 
-    let addr = SocketAddr::from(([127,0,0,1], 8081));
+    let addr: SocketAddr = "127.0.0.1:8081".parse().unwrap();
     println!("Server run on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
