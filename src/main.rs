@@ -2,7 +2,7 @@ use axum::{
     routing::post,
     Router,
 };
-use tower_http::{Any, CorsLayer};
+use tower_http::cors::{Any, CorsLayer};
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 
