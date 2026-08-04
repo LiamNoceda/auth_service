@@ -20,7 +20,7 @@ pub struct RegisterResponse {
     pub username: String,
 }
 
-// Handler for users registration
+// Handler for users registration StatusCode::CREATED or StatusCode::CONFLICT
 pub async fn register_handler(State(pool): State<PgPool>, Json(payload): Json<RegisterRequest>,) -> Result<(StatusCode, Json<RegisterResponse>), StatusCode> {
     let result = sqlx::query!(
         "INSERT INTO users (username, password) VALUES ($1, $2)", 
