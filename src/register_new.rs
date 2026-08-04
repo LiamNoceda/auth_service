@@ -8,16 +8,16 @@ use serde::{Deserialize, Serialize,};
 
 // Structs for register request
 #[derive(Deserialize)]
-struct RegisterRequest {
-    username: String,
-    password: String,
+pub struct RegisterRequest {
+    pub username: String,
+    pub password: String,
 }
 
 // Structs for register response
 #[derive(Serialize)]
-struct RegisterResponse {
-    message: String,
-    username: String,
+pub struct RegisterResponse {
+    pub message: String,
+    pub username: String,
 }
 
 // Handler for users registration
