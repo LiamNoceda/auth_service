@@ -2,6 +2,7 @@ use axum::{
     routing::post,
     Router,
 };
+use tower_http::{Any, CorsLayer};
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 
@@ -23,10 +24,16 @@ async fn main() {
         .await
         .expect("Failed run migrations");
 
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     let app = Router::new()
         .route("/auth/register", post(register_new::register_handler))
-        .with_state(pool);
-
+        .with_state(pool)
+        .layer(cors);
+    
     let addr: SocketAddr = "127.0.0.1:8081".parse().unwrap();
     println!("Server run on http://{}", addr);
 
