@@ -9,10 +9,12 @@ mod register_new;
 
 #[tokio::main]
 async fn main() {
-    let database_url = "YOUR_URL_DATABASE";
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL")
+        .expect("Failed to read DATABASE_URL from environment");
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(database_url)
+        .connect(&database_url)
         .await
         .expect("Failed connect in Data Base");
 
