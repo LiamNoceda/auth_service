@@ -15,6 +15,7 @@ async fn main() {
         .expect("Failed to read DATABASE_URL from environment");
     let pool = PgPoolOptions::new()
         .max_connections(5)
+        .min_connections(1)
         .connect(&database_url)
         .await
         .expect("Failed connect in Data Base");
