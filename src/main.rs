@@ -36,7 +36,7 @@ async fn main() {
         .with_state(pool)
         .layer(cors);
     
-    let addr: SocketAddr = "127.0.0.1:8081".parse().unwrap();
+    let addr: SocketAddr = "0.0.0.0:8081".parse().unwrap();
     println!("Server run on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
