@@ -6,6 +6,7 @@ use std::env;
 use std::sync::Arc;
 
 mod register_new;
+use register_new::{register_handler, AppConfig};
 
 #[tokio::main]
 async fn main() {
