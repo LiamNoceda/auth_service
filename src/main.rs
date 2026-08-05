@@ -34,18 +34,19 @@ async fn main() {
     let origins = if allowed_origin == "*" {
         AllowOrigin::any()
     } else {
-        AllowOrigin::exact(allowed_origin.parse().unwrap());
+        AllowOrigin::exact(allowed_origin.parse().unwrap())
     };
 
     let cors = CorsLayer::new()
         .allow_origin(origins)
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers([CONTENT_TYPE, AUTHORIZATION]);
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION])
+        .allow_credentials(allowed_origin != "*");
 
     let shared_state = Arc::new(AppConfig { db: pool });
 
     let app = Router::new()
-        .route("/api/auth/register", post(register_new::register_handler))
+        .route("/api/auth/register", post(register_handler))
         .layer(cors)
         .with_state(shared_state);
 

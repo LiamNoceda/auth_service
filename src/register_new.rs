@@ -11,7 +11,7 @@ use argon2::{
 use serde::{Deserialize, Serialize,};
 use sqlx::PgPool;
 use std::sync::Arc;
-use validator::Validator;
+use validator::Validate;
 
 // Data Base configuration struct
 pub struct AppConfig {
@@ -19,7 +19,7 @@ pub struct AppConfig {
 }
 
 // Struct for register request
-#[derive(Deserialize, Validator)]
+#[derive(Deserialize, Validate)]
 pub struct RegisterRequest {
     #[validate(length(min = 2, max = 55, message = "Username must be between 2 and 55 characters"))]
     pub username: String,
@@ -58,7 +58,7 @@ impl IntoResponse for AppError {
             AppError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string()),
         };
 
-        (status, Json(ErrorResponse { error, error_messge})).into_response()
+        (status, Json(ErrorResponse { error: error_messge })).into_response()
     }
 }
 
@@ -81,8 +81,8 @@ pub async fn register_handler(State(ctx): State<Arc<AppConfig>>, Json(payload): 
 
     sqlx::query!(
         "INSERT INTO users (username, password_hash) VALUES ($1, $2)",
-        payload.username,
-        hashed_password
+        &payload.username,
+        &hashed_password
     )
     .execute(&ctx.db)
     .await
