@@ -1,10 +1,9 @@
-use axum::{
-    routing::post,
-    Router,
-};
-use tower_http::cors::{Any, CorsLayer};
+use axum::{routing::post, Router,};
+use axum::http::{header::{CONTENT_TYPE, AUTHORIZATION}, Method};
+use tower_http::cors::{AllowOrigin, CorsLayer};
 use sqlx::postgres::PgPoolOptions;
-use std::net::SocketAddr;
+use std::env;
+use std::sync::Arc;
 
 mod register_new;
 
