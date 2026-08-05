@@ -62,27 +62,43 @@ impl IntoResponse for AppError {
     }
 }
 
-pub async fn register_handler(State(ctx): State<Arc>, Json(payload): Json<RegisterRequest>,) -> Result<impl IntoResponse, AppError> {
-    payload.validate().map_err(AppError::ValidationError)?;
+pub async fn register_handler(State(ctx): State<Arc<AppConfig>>, Json(payload): Json<RegisterRequest>,) -> Result<impl IntoResponse, AppError> {
+    payload
+    .validate()
+    .map_err(|e| AppError::ValidationError(e.to_string()))?;
 
-    let result = sqlx::query!(
-        "INSERT INTO users (username, password) VALUES ($1, $2)", 
-        &payload.username, 
-        &payload.password
-        )
-        .execute(&pool)
-        .await;
+    let password_to_hash = payload.password.clone();
+    let hashed_password = tokio::task::spawn_blocking(move || {
+        let salt = SaltString::generate(&mut argon2::password_hash::rand_core::OsRng);
+        let argon2 = Argon2::default();
+        argon2
+            .hash_password(password_to_hash.as_bytes(), &salt)
+            .map(|hash| hash.to_string())
+            .map_err(|_| AppError::InternalServerError)
+    })
+    .await
+    .map_err(|_| AppError::InternalServerError)??;
 
-    match result {
-        Ok(_) => {
-            let response = RegisterResponse {
-                message: "User registered in Spatiol".to_string(),
-                username: payload.username,
-            };
-            Ok((StatusCode::CREATED, Json(response)))
+    sqlx::query!(
+        "INSERT INTO users (username, password_hash) VALUES ($1, $2)",
+        payload.username,
+        hashed_password
+    )
+    .execute(&ctx.db)
+    .await
+    .map_err(|e| {
+        if let Some(db_error) = e.as_database_error() {
+            if db_error.code() == Some(std::borrow::Cow::Borrowed("23505")) {
+                return AppError::UserAlreadyExists;
+            }
         }
-        Err(_) => {
-            Err(StatusCode::CONFLICT)
-        }
-    }
+        AppError::DatabaseError(e)
+    })?;
+
+    Ok((
+        StatusCode::CREATED,
+        Json(AuthResponse { 
+            message: "User registered successfully".to_string() 
+        }),
+    ))
 }
