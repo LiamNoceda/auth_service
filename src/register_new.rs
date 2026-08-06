@@ -67,7 +67,7 @@ pub async fn register_handler(State(ctx): State<Arc<AppConfig>>, Json(payload): 
     .validate()
     .map_err(|e| AppError::ValidationError(e.to_string()))?;
 
-    let password_to_hash = payload.password.clone();
+    let password_to_hash = payload.password;
     let hashed_password = tokio::task::spawn_blocking(move || {
         let salt = SaltString::generate(&mut argon2::password_hash::rand_core::OsRng);
         let argon2 = Argon2::default();
