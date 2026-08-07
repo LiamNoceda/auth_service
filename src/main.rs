@@ -47,6 +47,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/api/auth/register", post(register_handler))
+        .route("/api/auth/login", post(login_handler))
         .layer(cors)
         .with_state(shared_state);
 
