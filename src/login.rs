@@ -25,7 +25,7 @@ pub struct LoginResponse {
     pub token: String,
 }
 
-pub async fn login_handler(State(ctx): State<Arc<AppConfig>>, Json(paylod): Json<LoginRequest>) -> Result<(StatusCode, Json<LoginResponse>), StatusCode> {
+pub async fn login_handler(State(ctx): State<Arc<PgPool>>, Json(paylod): Json<LoginRequest>) -> Result<(StatusCode, Json<LoginResponse>), StatusCode> {
     // 1 Валидция данных
 
     // 2 Сверка данных базы данных
