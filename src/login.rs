@@ -29,9 +29,17 @@ pub struct LoginRequest {
 }
 
 #[derive(Serialize)]
-pub struct LoginResponse {
+pub struct AuthResponse {
     pub message: String,
     pub token: String,
+    #[serde(rename = "token_type")]
+    pub token_type: String,
+}
+
+#[derive(Serialize)]
+pub struct Claims {
+    pub sub: String,
+    pub exp: usize,
 }
 
 #[derive(Serialize)]
@@ -39,12 +47,17 @@ pub struct ErrorResponse {
     pub error: String,
 }
 
-pub async fn login_handler(State(ctx): State<Arc<PgPool>>, Json(payload): Json<LoginRequest>) -> Result<impl IntoResponse, StatusCode> {
+pub async fn login_handler(State(ctx): State<Arc<PgPool>>, Json(payload): Json<LoginRequest>) -> Result<impl IntoResponse, (StatusCode, Json<ErrorResponse>)> {
     // 1 Валидция данных
 
-    // 2 Сверка данных базы данных
+    // 2 Проверка данныз
 
-    // 3 отправка токена при успехе
+    // 3 Генерация токена
 
-    // 4 При успехе отправить статус код успеха
+    // 4 Возврат результата
+    Ok(Json(AuthResponse {
+        message: "Login successful".to_string(),
+        token,
+        token_type,
+    }))
 }
